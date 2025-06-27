@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Insights - Dukaan</title>
+    <link rel="icon" href="fevicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Reports Page Specific Styles */
+        .report-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .report-card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        .report-card-title {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .report-card-title svg {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .report-card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .report-card-change {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .report-card-change.positive {
+            color: var(--secondary-color);
+        }
+
+        .report-card-change.negative {
+            color: var(--accent-color);
+        }
+
+        .report-card-change svg {
+            margin-right: 5px;
+        }
+
+        .download-section {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .download-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .download-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .download-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .download-title svg {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .download-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .download-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .download-button:hover {
+            transform: translateY(-5px);
+            background-color: rgba(174, 214, 122, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .download-button svg {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .download-button:hover svg {
+            transform: scale(1.2);
+        }
+
+        .download-button-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .download-button-desc {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .download-caption {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .date-range-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+            background-color: rgba(174, 214, 122, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px dashed var(--primary-color);
+        }
+
+        .date-input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .date-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .date-input input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .date-input input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(174, 214, 122, 0.2);
+        }
+
+        .download-custom-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-end;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .download-custom-btn:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .download-custom-btn svg {
+            margin-right: 8px;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .chart-title svg {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .pie-chart-container {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .pie-chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .pie-chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .legend-item:hover {
+            transform: scale(1.05);
+            background-color: rgba(174, 214, 122, 0.1);
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 4px;
+            margin-right: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover .legend-color {
+            transform: scale(1.2);
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+            max-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tooltip-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .tooltip-value {
+            font-weight: 500;
+        }
+
+        .insights-section {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .insights-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .insights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .insights-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .insights-title svg {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .insights-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .insight-card {
+            background-color: rgba(255, 165, 0, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            background-color: rgba(255, 165, 0, 0.1);
+        }
+
+        .insight-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover .insight-icon {
+            transform: scale(1.2);
+        }
+
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+
+        .insight-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .insight-action {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .insight-action:hover {
+            background-color: darkorange;
+            transform: scale(1.05);
+        }
+
+        .insight-action svg {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 992px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .report-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .download-buttons {
+                flex-direction: column;
+            }
+            
+            .insights-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader">
+        <div class="glow">Dukaan</div>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="dashboard-container">
+        <div class="sidebar" id="sidebar">
+            <h3>Dukaan</h3>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="Inventory.html">Inventory</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="Sales.html">Sales</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="Reports.html">Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Customers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://kirana-kart-delight.lovable.app/">Logout</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h1>Reports & Insights</h1>
+                <p>Analyze your store performance and download detailed reports</p>
+            </div>
+
+            <!-- Store Summary Section -->
+            <section class="report-cards">
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Total Sales
+                    </div>
+                    <div class="report-card-value">₹1,24,500</div>
+                    <div class="report-card-change positive">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        12.5% from last month
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Total Customers
+                    </div>
+                    <div class="report-card-value">245</div>
+                    <div class="report-card-change positive">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        8.2% from last month
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        Top Selling Product
+                    </div>
+                    <div class="report-card-value">Fortune Oil</div>
+                    <div class="report-card-change">
+                        ₹12,450 in sales
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        Revenue this Month
+                    </div>
+                    <div class="report-card-value">₹45,250</div>
+                    <div class="report-card-change positive">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        5.3% from last month
+                    </div>
+                </div>
+            </section>
+
+            <!-- Download Reports Section -->
+            <section class="download-section">
+                <div class="download-header">
+                    <div class="download-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Reports
+                    </div>
+                </div>
+                <div class="download-buttons">
+                    <div class="download-button" onclick="downloadReport('monthly')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <div class="download-button-title">Monthly Report</div>
+                        <div class="download-button-desc">Last 30 days data</div>
+                    </div>
+                    <div class="download-button" onclick="downloadReport('quarterly')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <div class="download-button-title">Quarterly Report</div>
+                        <div class="download-button-desc">Last 3 months data</div>
+                    </div>
+                    <div class="download-button" onclick="downloadReport('yearly')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <div class="download-button-title">Yearly Report</div>
+                        <div class="download-button-desc">Last 12 months data</div>
+                    </div>
+                </div>
+                <div class="download-caption">Download and grow smarter 📈</div>
+
+                <div class="date-range-picker">
+                    <div class="date-input">
+                        <label for="start-date">Start Date</label>
+                        <input type="date" id="start-date">
+                    </div>
+                    <div class="date-input">
+                        <label for="end-date">End Date</label>
+                        <input type="date" id="end-date">
+                    </div>
+                    <button class="download-custom-btn" onclick="downloadCustomReport()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Custom Report
+                    </button>
+                </div>
+            </section>
+
+            <!-- Visual Analytics Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            Monthly Sales Trend
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="salesTrendChart"></canvas>
+                        <div id="salesTrendTooltip" class="tooltip"></div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                            Top 5 Selling Products
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="topProductsChart"></canvas>
+                        <div id="topProductsTooltip" class="tooltip"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="pie-chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="8 14 12 18 16 14"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="8"></line>
+                        </svg>
+                        Revenue Distribution
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="height: 250px;">
+                    <canvas id="revenueDistributionChart"></canvas>
+                    <div id="pieChartTooltip" class="tooltip"></div>
+                </div>
+                <div class="pie-chart-legend" id="pieChartLegend"></div>
+            </section>
+
+            <!-- Important Insights Section -->
+            <section class="insights-section">
+                <div class="insights-header">
+                    <div class="insights-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Important Insights
+                    </div>
+                </div>
+                <div class="insights-cards">
+                    <div class="insight-card">
+                        <div class="insight-icon">📈</div>
+                        <div class="insight-title">Sales Growth Opportunity</div>
+                        <div class="insight-description">Your sales have increased by 12.5% compared to last month, but your inventory turnover rate has decreased. Consider optimizing your inventory levels to improve cash flow.</div>
+                        <a href="#" class="insight-action">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 16 16 12 12 8"></polyline>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                            View Details
+                        </a>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">🍫</div>
+                        <div class="insight-title">Product Trend Alert</div>
+                        <div class="insight-description">Dairy Milk Silk sales have increased by 15% this week. Consider running a promotion to capitalize on this trend.</div>
+                        <a href="#" class="insight-action">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 16 16 12 12 8"></polyline>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                            Create Promotion
+                        </a>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">🔄</div>
+                        <div class="insight-title">Customer Retention</div>
+                        <div class="insight-description">42% of your customers are repeat buyers. This is 5% higher than the industry average. Consider implementing a loyalty program to increase this further.</div>
+                        <a href="#" class="insight-action">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 16 16 12 12 8"></polyline>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                            Setup Program
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container-fluid">
+            <p class="mb-1">&copy; 2025 Dukaan. All rights reserved.</p>
+            <div class="text-muted small">
+                <a href="#" class="text-decoration-none me-3">Privacy Policy</a>
+                <a href="#" class="text-decoration-none">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Loader animation
+        window.addEventListener('load', function() {
+            document.getElementById('loader').style.display = 'none';
+        });
+
+        // Mobile navigation toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.getElementById('navToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            navToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 && 
+                    !e.target.closest('#sidebar') && 
+                    !e.target.closest('#navToggle')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+
+            // Initialize charts
+            initSalesTrendChart();
+            initTopProductsChart();
+            initRevenueDistributionChart();
+        });
+
+        // Download report functions
+        function downloadReport(type) {
+            alert(`Downloading ${type} report... This would trigger a PDF download in a real application.`);
+        }
+
+        function downloadCustomReport() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates.');
+                return;
+            }
+            
+            alert(`Downloading custom report from ${startDate} to ${endDate}... This would trigger a PDF download in a real application.`);
+        }
+
+        // Chart initialization functions
+        function initSalesTrendChart() {
+            const canvas = document.getElementById('salesTrendChart');
+            const tooltip = document.getElementById('salesTrendTooltip');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            
+            // Sample data
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const salesData = [12000, 15000, 13500, 18000, 22000, 24500, 23000, 25000, 27000, 29500, 32000, 35000];
+            
+            // Calculate scales
+            const padding = 40;
+            const chartWidth = canvas.width - padding * 2;
+            const chartHeight = canvas.height - padding * 2;
+            const maxSales = Math.max(...salesData) * 1.1; // Add 10% padding
+            
+            // Draw axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#ddd';
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Draw y-axis labels
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            
+            for (let i = 0; i <= 5; i++) {
+                const value = Math.round(maxSales * i / 5);
+                const y = canvas.height - padding - (chartHeight * i / 5);
+                ctx.fillText(formatCurrency(value), padding - 10, y);
+                
+                // Draw horizontal grid line
+                ctx.beginPath();
+                ctx.strokeStyle = '#eee';
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Draw x-axis labels
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            for (let i = 0; i < months.length; i++) {
+                const x = padding + (chartWidth * i / (months.length - 1));
+                ctx.fillText(months[i], x, canvas.height - padding + 10);
+            }
+            
+            // Draw data points and line
+            ctx.beginPath();
+            ctx.strokeStyle = '#AED67A';
+            ctx.lineWidth = 3;
+            
+            const dataPoints = [];
+            
+            for (let i = 0; i < salesData.length; i++) {
+                const x = padding + (chartWidth * i / (salesData.length - 1));
+                const y = canvas.height - padding - (chartHeight * salesData[i] / maxSales);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                // Store data points for hover interaction
+                dataPoints.push({ x, y, value: salesData[i], month: months[i] });
+                
+                // Draw data point
+                ctx.fillStyle = '#73D98B';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.stroke();
+            
+            // Draw area under the line
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(174, 214, 122, 0.2)';
+            
+            for (let i = 0; i < salesData.length; i++) {
+                const x = padding + (chartWidth * i / (salesData.length - 1));
+                const y = canvas.height - padding - (chartHeight * salesData[i] / maxSales);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.lineTo(padding + chartWidth, canvas.height - padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Add hover interaction
+            canvas.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Check if mouse is over a data point
+                let hoveredPoint = null;
+                for (const point of dataPoints) {
+                    const distance = Math.sqrt(Math.pow(mouseX - point.x, 2) + Math.pow(mouseY - point.y, 2));
+                    if (distance < 15) {
+                        hoveredPoint = point;
+                        break;
+                    }
+                }
+                
+                if (hoveredPoint) {
+                    // Show tooltip
+                    tooltip.style.opacity = '1';
+                    tooltip.style.left = (hoveredPoint.x + rect.left) + 'px';
+                    tooltip.style.top = (hoveredPoint.y + rect.top - 70) + 'px';
+                    tooltip.innerHTML = `
+                        <div class="tooltip-title">${hoveredPoint.month}</div>
+                        <div class="tooltip-value">${formatCurrency(hoveredPoint.value)}</div>
+                    `;
+                    
+                    // Highlight the point
+                    ctx.fillStyle = '#FFA500';
+                    ctx.beginPath();
+                    ctx.arc(hoveredPoint.x, hoveredPoint.y, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // Hide tooltip
+                    tooltip.style.opacity = '0';
+                    
+                    // Redraw chart to remove highlight
+                    initSalesTrendChart();
+                }
+            });
+            
+            canvas.addEventListener('mouseleave', function() {
+                // Hide tooltip
+                tooltip.style.opacity = '0';
+                
+                // Redraw chart to remove highlight
+                initSalesTrendChart();
+            });
+        }
+
+        function initTopProductsChart() {
+            const canvas = document.getElementById('topProductsChart');
+            const tooltip = document.getElementById('topProductsTooltip');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            
+            // Sample data
+            const products = ['Fortune Oil', 'Kellogg\'s', 'Dairy Milk', 'Harpic', 'Vitamin C'];
+            const salesData = [12450, 8320, 7650, 6200, 5100];
+            
+            // Calculate scales
+            const padding = 40;
+            const chartWidth = canvas.width - padding * 2;
+            const chartHeight = canvas.height - padding * 2;
+            const barHeight = chartHeight / products.length * 0.6;
+            const barSpacing = chartHeight / products.length * 0.4;
+            const maxSales = Math.max(...salesData) * 1.1; // Add 10% padding
+            
+            // Draw axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#ddd';
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Draw x-axis labels
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            
+            for (let i = 0; i <= 5; i++) {
+                const value = Math.round(maxSales * i / 5);
+                const x = padding + (chartWidth * i / 5);
+                ctx.fillText(formatCurrency(value), x, canvas.height - padding + 10);
+            }
+            
+            // Draw bars and product labels
+            const barData = [];
+            
+            for (let i = 0; i < products.length; i++) {
+                const barWidth = (salesData[i] / maxSales) * chartWidth;
+                const y = padding + i * (barHeight + barSpacing) + barSpacing / 2;
+                
+                // Store bar data for hover interaction
+                barData.push({
+                    x: padding,
+                    y: y,
+                    width: barWidth,
+                    height: barHeight,
+                    product: products[i],
+                    sales: salesData[i]
+                });
+                
+                // Draw product label
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#666';
+                ctx.fillText(products[i], padding - 10, y + barHeight / 2);
+                
+                // Create gradient for bar
+                const gradient = ctx.createLinearGradient(padding, 0, padding + barWidth, 0);
+                gradient.addColorStop(0, '#AED67A');
+                gradient.addColorStop(1, '#73D98B');
+                
+                // Draw bar
+                ctx.fillStyle = gradient;
+                ctx.fillRect(padding, y, barWidth, barHeight);
+                
+                // Draw sales value
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#333';
+                ctx.fillText(formatCurrency(salesData[i]), padding + barWidth + 10, y + barHeight / 2);
+            }
+            
+            // Add hover interaction
+            canvas.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Check if mouse is over a bar
+                let hoveredBar = null;
+                for (const bar of barData) {
+                    if (mouseX >= bar.x && mouseX <= bar.x + bar.width &&
+                        mouseY >= bar.y && mouseY <= bar.y + bar.height) {
+                        hoveredBar = bar;
+                        break;
+                    }
+                }
+                
+                if (hoveredBar) {
+                    // Show tooltip
+                    tooltip.style.opacity = '1';
+                    tooltip.style.left = (mouseX + rect.left + 10) + 'px';
+                    tooltip.style.top = (mouseY + rect.top - 40) + 'px';
+                    tooltip.innerHTML = `
+                        <div class="tooltip-title">${hoveredBar.product}</div>
+                        <div class="tooltip-value">${formatCurrency(hoveredBar.sales)}</div>
+                    `;
+                    
+                    // Highlight the bar
+                    ctx.fillStyle = 'rgba(255, 165, 0, 0.3)';
+                    ctx.fillRect(hoveredBar.x, hoveredBar.y, hoveredBar.width, hoveredBar.height);
+                } else {
+                    // Hide tooltip
+                    tooltip.style.opacity = '0';
+                    
+                    // Redraw chart to remove highlight
+                    initTopProductsChart();
+                }
+            });
+            
+            canvas.addEventListener('mouseleave', function() {
+                // Hide tooltip
+                tooltip.style.opacity = '0';
+                
+                // Redraw chart to remove highlight
+                initTopProductsChart();
+            });
+        }
+
+        function initRevenueDistributionChart() {
+            const canvas = document.getElementById('revenueDistributionChart');
+            const tooltip = document.getElementById('pieChartTooltip');
+            const legendContainer = document.getElementById('pieChartLegend');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            
+            // Sample data
+            const categories = [
+                { name: 'Grocery', value: 45, color: '#AED67A' },
+                { name: 'Skincare', value: 20, color: '#73D98B' },
+                { name: 'Sweets', value: 15, color: '#5BC0BE' },
+                { name: 'Cleaning', value: 12, color: '#3A86FF' },
+                { name: 'Home & Kitchen', value: 8, color: '#8A5CF5' }
+            ];
+            
+            // Calculate pie chart dimensions
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 40;
+            
+            // Draw pie chart
+            let startAngle = 0;
+            const slices = [];
+            
+            categories.forEach(category => {
+                const sliceAngle = (category.value / 100) * 2 * Math.PI;
+                const endAngle = startAngle + sliceAngle;
+                
+                // Store slice data for hover interaction
+                slices.push({
+                    startAngle,
+                    endAngle,
+                    category
+                });
+                
+                ctx.beginPath();
+                ctx.fillStyle = category.color;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fill();
+                
+                startAngle = endAngle;
+            });
+            
+            // Create legend
+            legendContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = category.color;
+                
+                const label = document.createElement('span');
+                label.textContent = `${category.name}: ${category.value}%`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendContainer.appendChild(legendItem);
+                
+                // Add hover interaction for legend items
+                legendItem.addEventListener('mouseenter', function() {
+                    // Highlight corresponding slice
+                    const slice = slices.find(s => s.category.name === category.name);
+                    if (slice) {
+                        ctx.beginPath();
+                        ctx.fillStyle = category.color;
+                        ctx.moveTo(centerX, centerY);
+                        ctx.arc(centerX, centerY, radius + 10, slice.startAngle, slice.endAngle);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Show tooltip
+                        tooltip.style.opacity = '1';
+                        tooltip.style.left = (canvas.getBoundingClientRect().left + centerX) + 'px';
+                        tooltip.style.top = (canvas.getBoundingClientRect().top + centerY - 70) + 'px';
+                        tooltip.innerHTML = `
+                            <div class="tooltip-title">${category.name}</div>
+                            <div class="tooltip-value">${category.value}% of total revenue</div>
+                        `;
+                    }
+                });
+                
+                legendItem.addEventListener('mouseleave', function() {
+                    // Hide tooltip
+                    tooltip.style.opacity = '0';
+                    
+                    // Redraw chart to remove highlight
+                    initRevenueDistributionChart();
+                });
+            });
+            
+            // Add hover interaction for pie chart
+            canvas.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Calculate distance from center
+                const dx = mouseX - centerX;
+                const dy = mouseY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Check if mouse is over a slice
+                if (distance <= radius) {
+                    // Calculate angle
+                    let angle = Math.atan2(dy, dx);
+                    if (angle < 0) angle += 2 * Math.PI;
+                    
+                    // Find the slice
+                    const hoveredSlice = slices.find(slice => 
+                        angle >= slice.startAngle && angle <= slice.endAngle
+                    );
+                    
+                    if (hoveredSlice) {
+                        const category = hoveredSlice.category;
+                        
+                        // Highlight the slice
+                        ctx.beginPath();
+                        ctx.fillStyle = category.color;
+                        ctx.moveTo(centerX, centerY);
+                        ctx.arc(centerX, centerY, radius + 10, hoveredSlice.startAngle, hoveredSlice.endAngle);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Show tooltip
+                        tooltip.style.opacity = '1';
+                        tooltip.style.left = (e.clientX + 10) + 'px';
+                        tooltip.style.top = (e.clientY - 40) + 'px';
+                        tooltip.innerHTML = `
+                            <div class="tooltip-title">${category.name}</div>
+                            <div class="tooltip-value">${category.value}% of total revenue</div>
+                        `;
+                    }
+                } else {
+                    // Hide tooltip
+                    tooltip.style.opacity = '0';
+                    
+                    // Redraw chart to remove highlight
+                    initRevenueDistributionChart();
+                }
+            });
+            
+            canvas.addEventListener('mouseleave', function() {
+                // Hide tooltip
+                tooltip.style.opacity = '0';
+                
+                // Redraw chart to remove highlight
+                initRevenueDistributionChart();
+            });
+        }
+
+        // Helper function to format currency
+        function formatCurrency(value) {
+            return '₹' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Window resize event to redraw charts
+        window.addEventListener('resize', function() {
+            initSalesTrendChart();
+            initTopProductsChart();
+            initRevenueDistributionChart();
+        });
+    </script>
+</body>
+</html>
